@@ -12,11 +12,20 @@ class MainWindow(QMainWindow):
         uic.loadUi("ui/main.ui", self)
         self.show()
 
+        # Load list of notes on sidebar
+        self.loadNotesTitle()
+
         self.currentlyLoadedTitle = ""
         self.isNewNote = True
 
         self.actionQuit.triggered.connect(exit)
         self.actionSave.triggered.connect(self.saveNote)
+        self.actionDelete.triggered.connect(self.deleteNote)
+        self.actionNew.triggered.connect(self.newNote)
+        self.actionBackup.triggered.connect(self.backupNote)
+
+        # Loads note from title list when double clicked
+        self.notesTitleListWidget.itemDoubleClicked.connect(self.loadNotes)
 
     def saveNote(self):
         conn = sqlite3.connect("notelist.db")
@@ -59,16 +68,51 @@ class MainWindow(QMainWindow):
         self.loadNotesTitle()
 
     def deleteNote(self):
-        pass
+        try:
+            noteToDeleteTitle = self.notesTitleListWidget.currentItem().text()
+            conn = sqlite3.connect("notelist.db")
+            c = conn.cursor()
+
+            c.execute('DELETE FROM noteList WHERE title = ?',
+                      (noteToDeleteTitle,))
+
+            conn.commit()
+            conn.close()
+        except:
+            errorMessage = QMessageBox()
+            errorMessage.setText("No note selected")
+            errorMessage.exec_()
+
+        self.loadNotesTitle()
 
     def newNote(self):
-        pass
+        self.isNewNote = True
+        self.textBoxTitle.setText("")
+        self.textBoxContent.setPlainText("")
+
+        currentSelectedNote = self.notesTitleListWidget.currentRow()
+        self.notesTitleListWidget.item(currentSelectedNote).setSelected(False)
 
     def backupNote(self):
         pass
 
     def loadNotes(self):
-        pass
+        self.isNewNote = False
+        noteToLoad = self.notesTitleListWidget.currentItem().text()
+        conn = sqlite3.connect("notelist.db")
+        c = conn.cursor()
+
+        c.execute("SELECT * FROM noteList WHERE title = ?", (noteToLoad,))
+        databaseValues = c.fetchall()
+
+        conn.commit()
+        conn.close()
+
+        # database values if a tuple so needs to get the first value, id counts
+        # as 0 index
+        self.textBoxContent.setPlainText(databaseValues[0][2])
+        self.textBoxTitle.setText(databaseValues[0][1])
+        self.currentlyLoadedTitle = databaseValues[0][1]
 
     def loadNotesTitle(self):
         self.notesTitleListWidget.clear()
