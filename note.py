@@ -2,6 +2,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5 import uic
 import sqlite3
+import shutil
+import os
+from os.path import exists
 
 
 class MainWindow(QMainWindow):
@@ -23,6 +26,7 @@ class MainWindow(QMainWindow):
         self.actionDelete.triggered.connect(self.deleteNote)
         self.actionNew.triggered.connect(self.newNote)
         self.actionBackup.triggered.connect(self.backupNote)
+        self.actionImport.triggered.connect(self.importNote)
 
         # Loads note from title list when double clicked
         self.notesTitleListWidget.itemDoubleClicked.connect(self.loadNotes)
@@ -105,10 +109,45 @@ class MainWindow(QMainWindow):
             pass
 
     def backupNote(self):
-        pass
+        filePath = QFileDialog.getSaveFileName(self)
+        filePath = filePath[0]
+
+        # Append filetype to file path if it doesnt already contain
+        if filePath[-3:] != ".db":
+            filePath += ".db"
+
+        shutil.copy("notelist.db", filePath)
 
     def importNote(self):
-        pass
+
+        if exists("notelist.db"):
+            warningMessage = QMessageBox()
+            warningMessage.setText(
+                "Importing notes will overwrite current notes")
+            warningMessage.setStandardButtons(
+                QMessageBox.Ok | QMessageBox.Cancel)
+            warningMessage.buttonClicked.connect(self.importNoteConfirmed)
+            warningMessage.exec_()
+
+    def importNoteConfirmed(self, i):
+
+        if i.text() == "OK":
+
+            # Get File Name
+            filePath = QFileDialog.getOpenFileName()
+            filePath = filePath[0]
+            currentPath = os.getcwd()
+
+            # Copy backup to current directory
+            shutil.copy(filePath, currentPath)
+            # gets just the file name
+            filePath = filePath.split("/")
+            newFilePath = filePath[-1]
+            # renames file
+            os.rename(newFilePath, "notelist.db")
+            self.loadNotesTitle()
+        else:
+            pass
 
     def loadNotes(self):
 
