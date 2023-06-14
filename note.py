@@ -35,12 +35,13 @@ class MainWindow(QMainWindow):
         itemContent = self.textBoxContent.toPlainText()
         items = [itemTitle, itemContent]
 
-        if itemTitle == "":
+        if not itemTitle.strip():
             errorMessage1 = QMessageBox()
             errorMessage1.setText("Note needs a title")
             errorMessage1.exec_()
             return 0
 
+        # If it is a new note the title needs to be unique
         if self.isNewNote:
             # Check if note with the same title exists in database
             check = c.execute(
@@ -54,6 +55,7 @@ class MainWindow(QMainWindow):
                 c.execute("""INSERT INTO noteList (title, content)
                       VALUES (?, ?)
                       """, items)
+        # If is not a new note then delete old note with same title and replace
         else:
             # Delete old note and save new one in its place
             c.execute("DELETE FROM noteList WHERE title = ?",
@@ -86,17 +88,30 @@ class MainWindow(QMainWindow):
         self.loadNotesTitle()
 
     def newNote(self):
+
         self.isNewNote = True
+
         self.textBoxTitle.setText("")
         self.textBoxContent.setPlainText("")
 
         currentSelectedNote = self.notesTitleListWidget.currentRow()
-        self.notesTitleListWidget.item(currentSelectedNote).setSelected(False)
+
+        try:
+            # This line deselects the note in the title list
+            self.notesTitleListWidget.item(
+                currentSelectedNote).setSelected(False)
+        except:
+            # If no note is selected then do nothing
+            pass
 
     def backupNote(self):
         pass
 
+    def importNote(self):
+        pass
+
     def loadNotes(self):
+
         self.isNewNote = False
         noteToLoad = self.notesTitleListWidget.currentItem().text()
         conn = sqlite3.connect("notelist.db")
