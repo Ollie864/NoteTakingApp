@@ -112,6 +112,11 @@
    <addaction name="actionDelete"/>
   </widget>
   <action name="actionNew">
+   <property name="icon">
+    <iconset>
+     <normalon>../icons/newFile.png</normalon>
+    </iconset>
+   </property>
    <property name="text">
     <string>New Note</string>
    </property>
@@ -120,6 +125,10 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/saveFile.png</normaloff>../icons/saveFile.png</iconset>
+   </property>
    <property name="text">
     <string>Save Note</string>
    </property>
@@ -128,6 +137,10 @@
    </property>
   </action>
   <action name="actionDelete">
+   <property name="icon">
+    <iconset>
+     <normaloff>../icons/deleteFile.png</normaloff>../icons/deleteFile.png</iconset>
+   </property>
    <property name="text">
     <string>Delete Note</string>
    </property>
