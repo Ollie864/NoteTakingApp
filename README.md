@@ -1,4 +1,4 @@
-![Project Banner](icon/NoteTaking.png)
+![Project Banner](icons/NoteTaking.png)
 
 # NoteTakingApp
 
